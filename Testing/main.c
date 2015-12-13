@@ -12,19 +12,42 @@
 #include "softdevice_handler.h"
 
 #define APP_GPIOTE_MAX_USERS	1
+//pin 2: Trigger Out
+//pin 3: Echo In
+//pin 4: Trigger Button In
+//pin 5: Echo Response Out
 #define BUTTON_0	3
+#define BUTTON_1	4
+
+volatile uint32_t start;
+volatile uint32_t end;
+volatile uint32_t echo;
 
 app_gpiote_user_id_t m_app_gpiote_my_id;
 
 void gpiote_event_handler(uint32_t event_pins_low_to_high, uint32_t event_pins_high_to_low)
 {
     if (event_pins_high_to_low & (1 << BUTTON_0)){
-        nrf_gpio_pin_set(LED_0);
-    	nrf_gpio_pin_set(2);
+        nrf_gpio_pin_clear(LED_0);
+    	nrf_gpio_pin_clear(5);
+    	app_timer_cnt_get(&end);
+    	app_timer_cnt_diff_compute(start, end, &echo);
     }
     
     if (event_pins_low_to_high & (1 << BUTTON_0)){
-        nrf_gpio_pin_clear(LED_0);
+        nrf_gpio_pin_set(LED_0);
+    	nrf_gpio_pin_set(5);
+    	app_timer_cnt_get(&start);
+    }
+
+    if (event_pins_high_to_low & (1 << BUTTON_1)){
+        nrf_gpio_pin_set(LED_1);
+    	nrf_gpio_pin_set(2);
+    	nrf_delay_us(20000);
+    }
+
+    if (event_pins_low_to_high & (1 << BUTTON_1)){
+        nrf_gpio_pin_clear(LED_1);
     	nrf_gpio_pin_clear(2);
     }
 }
@@ -39,7 +62,9 @@ void configureGPIO(){
 	uint32_t err_code;
 	nrf_gpio_cfg_output(LED_0);
 	nrf_gpio_cfg_output(2);
+	nrf_gpio_cfg_output(5);
 	nrf_gpio_cfg_input(3, NRF_GPIO_PIN_NOPULL);
+	nrf_gpio_cfg_input(4, NRF_GPIO_PIN_NOPULL);
 
 	APP_GPIOTE_INIT(APP_GPIOTE_MAX_USERS);
 	err_code = app_gpiote_user_register(&m_app_gpiote_my_id, (1 << BUTTON_0), (1 << BUTTON_0), gpiote_event_handler);
@@ -55,8 +80,7 @@ int main(void){
 
 	configureGPIO();
 	
-	uint8_t inputRead;
-//	uint32_t x;
+//	uint8_t inputRead;
 //	app_timer_cnt_get(&x);
 	while(1){
 		// inputRead = nrf_gpio_port_read(3);
