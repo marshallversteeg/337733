@@ -41,6 +41,8 @@ static volatile float countToUs = 1;
 // exitDirection and entryDirection
 static volatile uint8_t exitDir = -1;
 static volatile uint8_t entryDir = -1;
+// Direction Value
+static volatile uint8_t dir;
 // distance var
 static volatile float distance = 500;
 // Run's US if true;
@@ -59,15 +61,19 @@ void start_timer(void);
 void resetVars(){
 	distance = 500;
 	if(entryDir == 1 && exitDir == 0){
+		dir = 2;
 		nrf_gpio_pin_clear(LED_0);
 		nrf_gpio_pin_clear(LED_1);
 	} else if(entryDir == 0 && exitDir == 1){
+		dir = 3;
 		nrf_gpio_pin_clear(LED_0);
 		nrf_gpio_pin_clear(LED_1);
 	} else if(entryDir == 1 && exitDir == 1){
+		dir = 0;
 		nrf_gpio_pin_clear(LED_0);
 		nrf_gpio_pin_set(LED_1);
 	}  else if(entryDir == 0 && exitDir == 0){
+		dir = 1;
 		nrf_gpio_pin_set(LED_0);
 		nrf_gpio_pin_clear(LED_1);
 	}
