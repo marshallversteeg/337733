@@ -1,16 +1,21 @@
-
 #include <stdbool.h>
 #include <stdint.h>
-#include "led.h"
-#include "boards.h"
-#include "nrf_delay.h"
-#include "nrf_delay.c"
 #include "nrf_gpio.h"
-//#include "nordic_common.h"
+ #include "nrf_delay.h"
+#include "ble_advdata.h"
+#include "boards.h"
+#include "nordic_common.h"
+#include "softdevice_handler.h"
+#include "ble_debug_assert_handler.h"
+#include "led.h"
+
 #include "app_gpiote.h"
 #include "app_gpiote.c"
 #include "app_timer.h"
 #include "softdevice_handler.h"
+
+#include "simple_ble.h"
+#include "simple_adv.h"
 
 //pin 2: Trigger Out
 //pin 3: Echo In
@@ -54,9 +59,19 @@ app_gpiote_user_id_t m_app_gpiote_my_id;
 float personInRange();
 void gpiote_event_handler(uint32_t event_pins_low_to_high, uint32_t event_pins_high_to_low);
 bool getDistance(float* dist, uint8_t pinTrigger, uint8_t pinEcho);
-void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
+//void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name);
 void start_timer(void);
 //********************************************//
+
+// Intervals for advertising and connections
+static simple_ble_config_t ble_config = {
+    .platform_id       = 0x80,              // used as 4th octect in device BLE address
+    .device_id         = DEVICE_ID_DEFAULT,
+    .adv_name          = "LOLESPORTS",       // used in advertisements if there is room
+    .adv_interval      = MSEC_TO_UNITS(500, UNIT_0_625_MS),
+    .min_conn_interval = MSEC_TO_UNITS(500, UNIT_1_25_MS),
+    .max_conn_interval = MSEC_TO_UNITS(1000, UNIT_1_25_MS)
+};
 
 void resetVars(){
 	distance = 500;
@@ -78,9 +93,51 @@ void resetVars(){
 		nrf_gpio_pin_clear(LED_1);
 	}
 	nrf_gpio_pin_set(LED_2);
-	if(exitDir == 0)
 	entryDir = -1;
 	exitDir =-1;
+
+	uint8_t adv[4];
+
+    distance *= 0.394;
+
+    int counter = 0;
+    while(distance >= 12){
+        distance -= 12;
+        counter++;
+    }
+
+    int b = (int) distance;
+
+    adv[0] = counter*16 + 15;
+    adv[1] = b*16 + 8;
+
+    int front = 0;
+    int back = 0;
+
+    if(dir == 0){
+        front = 10;
+        back = 0;
+    }
+    else if(dir == 1){
+        front = 0;
+        back = 10;
+    }
+    else if(dir == 2){
+        front = 10;
+        back = 11;
+    }
+    else if(dir == 3){
+        front = 11;
+        back = 10;
+    }
+    // else exit(1);
+
+
+
+    adv[2] = 8*16 + front;
+    adv[3] = 16 + back;
+    // simple_adv_only_name(adv);
+
 }
 
 void gpiote_event_handler(uint32_t event_pins_low_to_high, uint32_t event_pins_high_to_low)
@@ -147,13 +204,13 @@ void gpiote_event_handler(uint32_t event_pins_low_to_high, uint32_t event_pins_h
 		// else do nothing
 	}
 }
-
+/*
 void app_error_handler(uint32_t error_code,
 					   uint32_t line_num,
 					   const uint8_t * p_file_name) {
 	NVIC_SystemReset();
 }
-
+*/
 void configureGPIO(){
 	uint32_t err_code;
 	nrf_gpio_cfg_output(LED_0);
@@ -330,24 +387,17 @@ void TIMER1_IRQHandler(void)
   }
 }
 
-// Intervals for advertising and connections
-static simple_ble_config_t ble_config = {
-    .platform_id       = 0x80,              // used as 4th octect in device BLE address
-    .device_id         = DEVICE_ID_DEFAULT,
-    .adv_name          = DEVICE_NAME,       // used in advertisements if there is room
-    .adv_interval      = MSEC_TO_UNITS(500, UNIT_0_625_MS),
-    .min_conn_interval = MSEC_TO_UNITS(500, UNIT_1_25_MS),
-    .max_conn_interval = MSEC_TO_UNITS(1000, UNIT_1_25_MS)
-};
 
 int main(void){
-	platform_init();
-	simple_ble_init(&ble_config);
-
-
-	SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_RC_250_PPM_8000MS_CALIBRATION, false);
+	//SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_RC_250_PPM_8000MS_CALIBRATION, false);
 	start_timer();
 	configureGPIO();
+	simple_ble_init(&ble_config);
+
+	simple_adv_only_name(0xDEADBEEF);
+
+    simple_adv_only_name(0xCAADBEEF);
+
 	// nrf_delay_ms(3000);
 //	uint8_t inputRead;
 //	app_timer_cnt_get(&x);
@@ -356,50 +406,6 @@ int main(void){
 		if(funk)
 			distance = personInRange();
 		sd_app_evt_wait();
-
-        uint8_t adv[4];
-
-        distance *= 0.394;
-
-        int counter = 0;
-        while(distance >= 12){
-            distance -= 12;
-            counter++;
-        }
-
-        int b = (int) distance;
-
-        adv[0] = counter*16 + 15;
-        adv[1] = b*16 + 8;
-
-        int front = 0;
-        int back = 0;
-
-        if(dir == 0){
-            front = 10;
-            back = 0;
-        }
-        else if(dir == 1){
-            front = 0;
-            back = 10;
-        }
-        else if(dir == 2){
-            front = 10;
-            back = 11;
-        }
-        else if(dir == 3){
-            front = 11;
-            back = 10;
-        }
-        else exit(1);
-
-
-
-        adv[2] = 8*16 + front;
-        adv[3] = 16 + back;
-    
-        simple_adv_only_name(adv);
-
 
 	}
 }

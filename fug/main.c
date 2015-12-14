@@ -41,7 +41,7 @@ int main(void) {
 
     // Setup BLE
     simple_ble_init(&ble_config);
-    simple_adv_only_name(gpio_read(2));
+    simple_adv_only_name(0xDEAD);
 
 /*
     //led_on(LED_0);
