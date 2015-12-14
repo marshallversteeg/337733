@@ -1,0 +1,14 @@
+int int_to_hex(int height){
+	int temp = 0;
+	if(height%12 >9){
+		//Split into 2 bits
+		temp = (1 << 4);
+		temp |= height %10;
+	}
+	else{
+		temp |= height%12;
+	}
+	temp |= 0x0F00;
+	temp |= ((height/12) << 12);
+	return temp;
+}
