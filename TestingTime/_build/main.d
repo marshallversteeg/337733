@@ -21,36 +21,38 @@ _build/main.o: main.c \
  ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/device/nrf51_bitfields.h \
  ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/device/nrf51_deprecated.h \
  ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/device/compiler_abstraction.h \
- ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/gpiote/app_gpiote.h \
- ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/util/app_error.h \
- ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/softdevice/s110/headers/nrf_error.h \
- ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/util/app_util.h \
- ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/device/compiler_abstraction.h \
- ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/gpiote/app_gpiote.c \
- ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/gpiote/app_gpiote.h \
- /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/stdlib.h \
- /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/machine/ieeefp.h \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/drivers_nrf/hal/nrf_delay.c \
+ /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/stdio.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/_ansi.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/newlib.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/config.h \
+ /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/machine/ieeefp.h \
+ /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/cdefs.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/lib/gcc/arm-none-eabi/4.9.3/include/stddef.h \
+ /opt/gcc-arm-none-eabi-4_9-2015q3/lib/gcc/arm-none-eabi/4.9.3/include/stdarg.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/reent.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/_ansi.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/_types.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/machine/_types.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/lock.h \
- /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/cdefs.h \
+ /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/types.h \
+ /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/machine/types.h \
+ /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/stdio.h \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/device/compiler_abstraction.h \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/drivers_nrf/hal/nrf_delay.h \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/gpiote/app_gpiote.h \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/util/app_error.h \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/softdevice/s110/headers/nrf_error.h \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/util/app_util.h \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/gpiote/app_gpiote.c \
+ ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/gpiote/app_gpiote.h \
+ /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/stdlib.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/machine/stdlib.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/alloca.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/string.h \
  /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/string.h \
  ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/util/app_util_platform.h \
  ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/timer/app_timer.h \
- /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/stdio.h \
- /opt/gcc-arm-none-eabi-4_9-2015q3/lib/gcc/arm-none-eabi/4.9.3/include/stdarg.h \
- /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/types.h \
- /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/machine/types.h \
- /opt/gcc-arm-none-eabi-4_9-2015q3/arm-none-eabi/include/sys/stdio.h \
  ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/softdevice/common/softdevice_handler/softdevice_handler.h \
  ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/libraries/util/nordic_common.h \
  ../../nrf5x-base/sdk/nrf51_sdk_9.0.0/components/softdevice/s110/headers/nrf_sdm.h \

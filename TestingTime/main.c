@@ -4,6 +4,7 @@
 #include "led.h"
 #include "boards.h"
 #include "nrf_delay.h"
+#include "nrf_delay.c"
 #include "nrf_gpio.h"
 //#include "nordic_common.h"
 #include "app_gpiote.h"
@@ -19,10 +20,10 @@
 //****************** Pinout: ******************//
 #define US_Trig_1	5	// Center HC-SR04 Trigger 		//ADC6
 #define US_Echo_1	6	// Center HC-SR04 Echo 			//ADC7
-#define US_Trig_2	1	// Right HC-SR04 Trigger 		//
-#define US_Echo_2	7	// Right HC-SR04 Echo 			//
-#define US_Trig_3	3	// Left HC-SR04 Trigger 		//
-#define US_Echo_3	4	// Left HC-SR04 Echo 			//
+#define US_Trig_2	3	// Right HC-SR04 Trigger 		//ADC4
+#define US_Echo_2	4	// Right HC-SR04 Echo 			//ADC5
+#define US_Trig_3	1	// Left HC-SR04 Trigger 		//
+#define US_Echo_3	20	// Left HC-SR04 Echo 			//
 #define US_Line		2	// Line driver to power USs.	//ADC3
 #define PIR_1		23	//Front 						//P23
 #define PIR_2		24	//Back 							//P24
@@ -56,18 +57,19 @@ void start_timer(void);
 void resetVars(){
 	distance = 500;
 	if(entryDir == 1 && exitDir == 0){
-		nrf_gpio_pin_set(LED_0);
-		nrf_gpio_pin_set(LED_1);
-	} else if(entryDir == 0 && exitDir == 1){
-		nrf_gpio_pin_set(LED_0);
-		nrf_gpio_pin_set(LED_1);
-	} else if(entryDir == 1 && exitDir == 1){
-		nrf_gpio_pin_set(LED_0);
+		nrf_gpio_pin_clear(LED_0);
 		nrf_gpio_pin_clear(LED_1);
-	}  else if(entryDir == 0 && exitDir == 0){
+	} else if(entryDir == 0 && exitDir == 1){
+		nrf_gpio_pin_clear(LED_0);
+		nrf_gpio_pin_clear(LED_1);
+	} else if(entryDir == 1 && exitDir == 1){
 		nrf_gpio_pin_clear(LED_0);
 		nrf_gpio_pin_set(LED_1);
+	}  else if(entryDir == 0 && exitDir == 0){
+		nrf_gpio_pin_set(LED_0);
+		nrf_gpio_pin_clear(LED_1);
 	}
+	nrf_gpio_pin_set(LED_2);
 	if(exitDir == 0)
 	entryDir = -1;
 	exitDir =-1;
@@ -79,6 +81,7 @@ void gpiote_event_handler(uint32_t event_pins_low_to_high, uint32_t event_pins_h
 		// Check if PIR_2 is low
 		// if(PIR_2 is low) stop US-Sampling
 		// 		compare to initial direction
+		// nrf_gpio_pin_set(LED_2);
 		uint32_t PIR2val = nrf_gpio_pin_read(PIR_2);
 		if(!PIR2val){
 			exitDir = 1;
@@ -90,10 +93,12 @@ void gpiote_event_handler(uint32_t event_pins_low_to_high, uint32_t event_pins_h
 	if (event_pins_low_to_high & (1 << PIR_1)){
 		// Check if PIR_2 is low
 		// if(PIR_2 is low) start US-Sampling
+		// nrf_gpio_pin_clear(LED_2);
 		uint32_t PIR2val = nrf_gpio_pin_read(PIR_2);
 		if(!PIR2val){
 			entryDir = 1;
-			nrf_delay_ms(LINE_STARTUP);
+			// nrf_gpio_pin_clear(US_Line);
+			// nrf_delay_ms(LINE_STARTUP);
 			distance = personInRange();
 		}
 		// 		store current direction
@@ -105,8 +110,10 @@ void gpiote_event_handler(uint32_t event_pins_low_to_high, uint32_t event_pins_h
 		// if(PIR_1 is low) stop US-Sampling
 		//		compare to initial direction
 		uint32_t PIR1val = nrf_gpio_pin_read(PIR_1);
-		if(!PIR1val)
+		if(!PIR1val){
 			exitDir = 0;
+			resetVars();
+		}
 		// else do nothing
 	}
 
@@ -116,7 +123,8 @@ void gpiote_event_handler(uint32_t event_pins_low_to_high, uint32_t event_pins_h
 		uint32_t PIR1val = nrf_gpio_pin_read(PIR_1);
 		if(!PIR1val){
 			entryDir = 0;
-			nrf_delay_ms(LINE_STARTUP);
+			// nrf_gpio_pin_clear(US_Line);
+			// nrf_delay_ms(LINE_STARTUP);
 			distance = personInRange();
 		}
 		// 		store current direction
@@ -137,16 +145,18 @@ void configureGPIO(){
 	nrf_gpio_cfg_output(LED_2);
 	nrf_gpio_cfg_output(US_Line);
 	nrf_gpio_cfg_output(US_Trig_1);
-	nrf_gpio_cfg_output(US_Trig_2);
-	nrf_gpio_cfg_output(US_Trig_3);
-	nrf_gpio_cfg_input(US_Echo_1, NRF_GPIO_PIN_NOPULL);
-	nrf_gpio_cfg_input(US_Echo_2, NRF_GPIO_PIN_NOPULL);
-	nrf_gpio_cfg_input(US_Echo_3, NRF_GPIO_PIN_NOPULL);
-	nrf_gpio_cfg_input(PIR_1, NRF_GPIO_PIN_NOPULL);
-	nrf_gpio_cfg_input(PIR_2, NRF_GPIO_PIN_NOPULL);
+	// nrf_gpio_cfg_output(US_Trig_2);
+	// nrf_gpio_cfg_output(US_Trig_3);
+	nrf_gpio_cfg_input(US_Echo_1, NRF_GPIO_PIN_PULLDOWN);
+	// nrf_gpio_cfg_input(US_Echo_2, NRF_GPIO_PIN_PULLDOWN);
+	// nrf_gpio_cfg_input(US_Echo_3, NRF_GPIO_PIN_PULLDOWN);
+	nrf_gpio_cfg_input(PIR_1, NRF_GPIO_PIN_PULLDOWN);
+	nrf_gpio_cfg_input(PIR_2, NRF_GPIO_PIN_PULLDOWN);
 	// Create a bit mask for all of the events
 	// allowing them to be triggered by the same
 	// handler.
+	nrf_gpio_pin_clear(US_Line);
+	nrf_delay_ms(LINE_STARTUP);
 	uint32_t gpiote_event_bit_mask = 0;
 	// gpiote_event_bit_mask += (1 << US_Trig_1);
 	// gpiote_event_bit_mask += (1 << US_Trig_2);
@@ -178,20 +188,20 @@ float personInRange(){
 	app_gpiote_user_disable(m_app_gpiote_my_id);
 	uint32_t PIR_1read = nrf_gpio_pin_read(PIR_1);
 	uint32_t PIR_2read = nrf_gpio_pin_read(PIR_2);
-	// Init distance as a 
-	float dist = 500;
-	while(PIR_1read || PIR_2read){
+	// Init distance as a float
+	float dist = 400.0;
+	while(PIR_1read && PIR_2read){
 		getDistance(&dist, US_Trig_1, US_Echo_1);
 		PIR_1read = nrf_gpio_pin_read(PIR_1);
 		PIR_2read = nrf_gpio_pin_read(PIR_2);
-		if(PIR_1read || PIR_2read) break;
-		getDistance(&dist, US_Trig_2, US_Echo_2);
-		PIR_1read = nrf_gpio_pin_read(PIR_1);
-		PIR_2read = nrf_gpio_pin_read(PIR_2);
-		if(PIR_1read || PIR_2read) break;
-		getDistance(&dist, US_Trig_3, US_Echo_3);
-		PIR_1read = nrf_gpio_pin_read(PIR_1);
-		PIR_2read = nrf_gpio_pin_read(PIR_2);
+		// if(!(PIR_1read && PIR_2read)) break;
+		// getDistance(&dist, US_Trig_2, US_Echo_2);
+		// PIR_1read = nrf_gpio_pin_read(PIR_1);
+		// PIR_2read = nrf_gpio_pin_read(PIR_2);
+		// if(!(PIR_1read && PIR_2read)) break;
+		// getDistance(&dist, US_Trig_3, US_Echo_3);
+		// PIR_1read = nrf_gpio_pin_read(PIR_1);
+		// PIR_2read = nrf_gpio_pin_read(PIR_2);
 	}
 	app_gpiote_user_enable(m_app_gpiote_my_id);
 	return dist;
@@ -212,6 +222,7 @@ bool getDistance(float* dist, uint8_t pinTrigger, uint8_t pinEcho)
   nrf_gpio_pin_clear(pinTrigger);
   nrf_delay_us(20);
   nrf_gpio_pin_set(pinTrigger);
+  nrf_gpio_pin_clear(LED_2);
   nrf_delay_us(12);
   nrf_gpio_pin_clear(pinTrigger);
   nrf_delay_us(20);
@@ -225,7 +236,7 @@ bool getDistance(float* dist, uint8_t pinTrigger, uint8_t pinEcho)
   // reset counter
   tCount = 0;
   // wait till Echo pin goes low
-  while(nrf_gpio_pin_read(pinEcho));
+  while(nrf_gpio_pin_read(pinEcho) || (countToUs > 200));
   
   // calculate duration in us
   float duration = countToUs*tCount;
@@ -307,7 +318,7 @@ int main(void){
 	SOFTDEVICE_HANDLER_INIT(NRF_CLOCK_LFCLKSRC_RC_250_PPM_8000MS_CALIBRATION, false);
 	start_timer();
 	configureGPIO();
-	
+	nrf_delay_ms(1000);
 //	uint8_t inputRead;
 //	app_timer_cnt_get(&x);
 	while(1){
